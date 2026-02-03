@@ -1,27 +1,30 @@
 package guiqsassi.gamescraper.Entity;
 
+import guiqsassi.gamescraper.Entity.Enum.GameStore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Entity
 @AllArgsConstructor @NoArgsConstructor @Data
-public class Game {
+public class GamePrice {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
-    private String title;
-    private String description;
-    private LocalDateTime releaseDate;
+    @Enumerated(EnumType.STRING)
+    private GameStore gameStore;
 
-    @OneToMany(cascade = CascadeType.ALL)
-    private List<GameImage> images;
-    private LocalDateTime created = LocalDateTime.now();
+    @ManyToOne
+    @JoinColumn
+    private Game game;
+    private LocalDateTime date = LocalDateTime.now();
+    private BigDecimal price;
+
 
 
 }
