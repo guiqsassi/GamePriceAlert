@@ -4,7 +4,9 @@ import guiqsassi.gamescraper.Entity.Enum.GameStore;
 import guiqsassi.gamescraper.Entity.Game;
 import guiqsassi.gamescraper.Entity.GamePrice;
 import guiqsassi.gamescraper.Scraper.core.AbstractScraper;
-import guiqsassi.gamescraper.Scraper.core.GameScraper;
+import guiqsassi.gamescraper.Service.GameService;
+import jakarta.persistence.EntityNotFoundException;
+import lombok.RequiredArgsConstructor;
 import org.openqa.selenium.By;
 import org.openqa.selenium.StaleElementReferenceException;
 import org.openqa.selenium.WebDriver;
@@ -20,9 +22,12 @@ import java.util.List;
 
 
 @Service
+@RequiredArgsConstructor
 public class NuuvemScraper extends AbstractScraper {
 
     private static final String URL = "https://www.nuuvem.com/br-pt/catalog/drm/steam/os/windows/platforms/pc/types/games/sort/price/sort-mode/asc/search/";
+
+    private final GameService gameService;
 
     @Override
     public List<GamePrice> getGame(String title) {
@@ -48,8 +53,7 @@ public class NuuvemScraper extends AbstractScraper {
                     price = new StringBuilder(price.toString().replaceAll("\\s+", " "));
                     price = new StringBuilder(price.toString().replace(",", "."));
 
-                    Game  game = new Game();
-                    game.setTitle(titleE);
+                    Game  game = findOrSaveGame(title);
 
                     GamePrice g = new GamePrice();
                     g.setGameStore(GameStore.NUUVEM);
@@ -66,4 +70,22 @@ public class NuuvemScraper extends AbstractScraper {
         return games;
 
     }
+
+    private Game findOrSaveGame(String title) {
+        try{
+            return gameService.findByTitle(title);
+        }
+        catch (EntityNotFoundException e) {
+            WebDriver d = getDriver("https://www.nuuvem.com/br-pt/item/" + title.toLowerCase().replace("\\s+", "_"));
+
+            String about = d.findElement(By.id("product-about")).getText();
+            Game game = new Game();
+            game.setTitle(d.findElement(By.className("product-title")).getAttribute("title"));
+            game.setDescription(about);
+
+            return game;
+        }
+    }
+
 }
+
