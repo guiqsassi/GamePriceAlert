@@ -11,14 +11,19 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.StaleElementReferenceException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 
 @Service
@@ -32,6 +37,11 @@ public class NuuvemScraper extends AbstractScraper {
     @Override
     public List<GamePrice> getGame(String title) {
         WebDriver driver = getDriver(URL + URLEncoder.encode(title, StandardCharsets.UTF_8));
+
+
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+        wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(By.tagName("a")));
+
         List<GamePrice> games = new ArrayList<>();
         for (WebElement e : driver.findElements(By.className("grid-col-6"))) {
             try {
@@ -41,24 +51,27 @@ public class NuuvemScraper extends AbstractScraper {
 
                 if (titleE != null && !titleE.isBlank()) {
 
-                    WebElement priceE = linkEl.findElement(By.className("product-price--val"));
-                    StringBuilder price = new StringBuilder();
+                    WebElement priceDiv = driver.findElement(By.cssSelector(".product-price"));
 
+                    String dataPrice = priceDiv.getAttribute("data-price");
+                    dataPrice = dataPrice.replace("&quot;", "\"");
 
-                    List<WebElement> span = priceE.findElements(By.tagName("span"));
-
-                    for(WebElement s : span) {
-                        price.append(s.getText());
+                    Pattern p = Pattern.compile("\"v\":(\\d+)");
+                    Matcher m = p.matcher(dataPrice);
+                    if (!m.find()) {
+                        throw new RuntimeException("Preço não encontrado em: " + dataPrice);
                     }
-                    price = new StringBuilder(price.toString().replaceAll("\\s+", " "));
-                    price = new StringBuilder(price.toString().replace(",", "."));
+                    BigDecimal price = new BigDecimal(m.group(1))
+                                .divide(new BigDecimal("100"));
 
-                    Game  game = findOrSaveGame(title);
+
+
+                    Game  game = findOrSaveGame(titleE, driver);
 
                     GamePrice g = new GamePrice();
                     g.setGameStore(GameStore.NUUVEM);
                     g.setDate(LocalDateTime.now());
-                    g.setPrice(new BigDecimal(price.toString()));
+                    g.setPrice(price);
                     g.setGame(game);
 
                     games.add(g);
@@ -67,23 +80,29 @@ public class NuuvemScraper extends AbstractScraper {
             }
 
             }
+        driver.close();
         return games;
 
     }
 
-    private Game findOrSaveGame(String title) {
+    private Game findOrSaveGame(String title, WebDriver d) {
         try{
             return gameService.findByTitle(title);
         }
         catch (EntityNotFoundException e) {
-            WebDriver d = getDriver("https://www.nuuvem.com/br-pt/item/" + title.toLowerCase().replace("\\s+", "_"));
+            d.get("https://www.nuuvem.com/br-pt/item/" + title.toLowerCase().replace(" ", "-"));
+            WebDriverWait wait = new WebDriverWait(d, Duration.ofSeconds(1));
 
+            wait.until(ExpectedConditions.visibilityOfElementLocated(
+                    By.cssSelector("h1.product-title span")
+            ));
             String about = d.findElement(By.id("product-about")).getText();
             Game game = new Game();
             game.setTitle(d.findElement(By.className("product-title")).getAttribute("title"));
             game.setDescription(about);
 
-            return game;
+            d.navigate().back();
+            return gameService.save(game);
         }
     }
 

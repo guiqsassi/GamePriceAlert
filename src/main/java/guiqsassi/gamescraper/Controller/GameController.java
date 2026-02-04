@@ -1,6 +1,7 @@
 package guiqsassi.gamescraper.Controller;
 
 import guiqsassi.gamescraper.Entity.GamePrice;
+import guiqsassi.gamescraper.FeignClient.SteamFeignClient;
 import guiqsassi.gamescraper.Scraper.impl.NuuvemScraper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -19,11 +20,24 @@ public class GameController {
     @Autowired
     private NuuvemScraper nuuvemScraper;
 
+    @Autowired
+    private SteamFeignClient  steamFeignClient;
 
     @GetMapping("/{title}")
     private ResponseEntity<?> getGame(@PathVariable String title) {
         List<GamePrice> gp = nuuvemScraper.getGame(title);
 
         return ResponseEntity.ok(gp);
+    }
+
+    @GetMapping("/steam/{title}")
+    private ResponseEntity<?> getSteam(@PathVariable String title) {
+        System.out.println(title);
+        title = "Persona+3+Reload";
+        return ResponseEntity.ok(steamFeignClient.searchItems(title, "portuguese", "br"));
+    }
+    @GetMapping("/steamId/{id}")
+    private ResponseEntity<?> getSteamGame(@PathVariable String id) {
+        return ResponseEntity.ok(steamFeignClient.getAppDetails(id, "portuguese", "br"));
     }
 }
