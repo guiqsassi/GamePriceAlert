@@ -41,7 +41,7 @@ public class GamePriceService {
         GamePrice lowestGamePrice = gp.stream().min(Comparator.comparing(GamePrice::getPrice))
                 .orElseThrow();
 
-        return gp;
+        return lowestGamePrice;
 
 
     }
