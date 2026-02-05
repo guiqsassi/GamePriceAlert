@@ -17,10 +17,12 @@ public abstract class AbstractScraper implements GameScraper {
     public WebDriver getDriver (String url){
 
         try{
-            WebDriverManager.chromedriver().setup();
+            WebDriverManager.chromedriver()
+                    .clearDriverCache()
+                    .setup();
 
             ChromeOptions options = new ChromeOptions();
-            options.addArguments("--headless", "--disable-gpu");
+            options.addArguments("--headles=new", "--disable-gpu");
             options.addArguments("--no-sandbox");
             options.addArguments("--disable-dev-shm-usage");
             options.addArguments("--disable-blink-features=AutomationControlled");

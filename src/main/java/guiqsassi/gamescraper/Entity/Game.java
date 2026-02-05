@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.Type;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -16,6 +17,7 @@ public class Game {
     @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
     private String title;
+    @Lob
     private String description;
     private LocalDateTime releaseDate;
 
