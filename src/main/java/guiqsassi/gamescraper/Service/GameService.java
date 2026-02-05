@@ -4,7 +4,7 @@ import guiqsassi.gamescraper.Dto.ItemDto;
 
 import guiqsassi.gamescraper.Dto.SteamData;
 import guiqsassi.gamescraper.Dto.SteamSearchDto;
-import guiqsassi.gamescraper.Entity.Game
+import guiqsassi.gamescraper.Entity.Game;
 import guiqsassi.gamescraper.Entity.GameImage;
 import guiqsassi.gamescraper.Entity.GamePrice;
 import guiqsassi.gamescraper.FeignClient.SteamFeignClient;
@@ -13,6 +13,8 @@ import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -48,36 +50,42 @@ public class GameService {
     public Game saveFromSteam(String title){
         SteamSearchDto data =steamClient.searchItems(title, "portuguese", "br");
         List<ItemDto> items= data.getItems();
-        String bestMatchId = items.stream().filter( itemDto -> {
-            return itemDto.getName().toLowerCase().contains(title.toLowerCase());
-        } ).toList().getFirst().getId();
+        try {
+            String bestMatchId = items.stream().filter(itemDto -> {
+                return itemDto.getName().toLowerCase().contains(title.toLowerCase());
+            }).toList().getFirst().getId();
 
-         SteamData gameData = steamClient.getAppDetails(bestMatchId, "portuguese", "br").get(bestMatchId).getData();
-        Locale ptBR = new Locale("pt", "BR");
 
-        // remove barras e vírgulas estranhas
-        String raw = gameData.getRelease_date().getDate().replace("/", " ")
-                .replace(",", "")
-                .trim();
+            SteamData gameData = steamClient.getAppDetails(bestMatchId, "portuguese", "br").get(bestMatchId).getData();
+            Locale ptBR = new Locale("pt", "BR");
 
-        DateTimeFormatter formatter =
-                DateTimeFormatter.ofPattern("d MMM yyyy", ptBR);
+            // remove barras e vírgulas estranhas
+            String raw = gameData.getRelease_date().getDate().replace("/", " ")
+                    .replace(",", "")
+                    .trim();
 
-        List<GameImage> images = new ArrayList<>();
-         Game g = new Game();
-         g.setTitle(gameData.getName());
-         g.setReleaseDate(LocalDate.parse(raw, formatter).atStartOfDay() );
-         g.setDescription(gameData.getShort_description());
+            DateTimeFormatter formatter =
+                    DateTimeFormatter.ofPattern("d MMM yyyy", ptBR);
 
-         gameData.getScreenshots().stream().forEach( screenshot ->{
-             GameImage gi = new GameImage();
-             gi.setGame(g);
-             gi.setUrl(screenshot.getPath_full());
-             images.add(gi);
-         });
+            List<GameImage> images = new ArrayList<>();
+            Game g = new Game();
+            g.setTitle(gameData.getName());
+            g.setReleaseDate(LocalDate.parse(raw, formatter).atStartOfDay());
+            g.setDescription(gameData.getShort_description());
 
-         return this.save(g);
+            gameData.getScreenshots().stream().forEach(screenshot -> {
+                GameImage gi = new GameImage();
+                gi.setGame(g);
+                gi.setUrl(screenshot.getPath_full());
+                images.add(gi);
+            });
+            g.setSteamId(bestMatchId);
+            g.setImages(images);
 
+            return this.save(g);
+        } catch (Exception e) {
+            return new Game();
+        }
     }
 
 

@@ -66,7 +66,7 @@ public class NuuvemScraper extends AbstractScraper {
 
 
 
-                    Game  game = findOrSaveGame(titleE, driver);
+                    Game  game = gameService.findOrSaveFromSteam(titleE );
 
                     GamePrice g = new GamePrice();
                     g.setGameStore(GameStore.NUUVEM);
@@ -85,26 +85,7 @@ public class NuuvemScraper extends AbstractScraper {
 
     }
 
-    private Game findOrSaveGame(String title, WebDriver d) {
-        try{
-            return gameService.findByTitle(title);
-        }
-        catch (EntityNotFoundException e) {
-            d.get("https://www.nuuvem.com/br-pt/item/" + title.toLowerCase().replace(" ", "-"));
-            WebDriverWait wait = new WebDriverWait(d, Duration.ofSeconds(1));
 
-            wait.until(ExpectedConditions.visibilityOfElementLocated(
-                    By.cssSelector("h1.product-title span")
-            ));
-            String about = d.findElement(By.id("product-about")).getText();
-            Game game = new Game();
-            game.setTitle(d.findElement(By.className("product-title")).getAttribute("title"));
-            game.setDescription(about);
-
-            d.navigate().back();
-            return gameService.save(game);
-        }
-    }
 
 }
 

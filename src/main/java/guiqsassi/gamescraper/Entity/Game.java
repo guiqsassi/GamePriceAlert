@@ -25,5 +25,7 @@ public class Game {
     private List<GameImage> images;
     private LocalDateTime created = LocalDateTime.now();
 
+    private String steamId;
+
 
 }

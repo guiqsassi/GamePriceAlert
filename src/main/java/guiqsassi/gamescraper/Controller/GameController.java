@@ -1,8 +1,11 @@
 package guiqsassi.gamescraper.Controller;
 
+import guiqsassi.gamescraper.Entity.Game;
 import guiqsassi.gamescraper.Entity.GamePrice;
 import guiqsassi.gamescraper.FeignClient.SteamFeignClient;
 import guiqsassi.gamescraper.Scraper.impl.NuuvemScraper;
+import guiqsassi.gamescraper.Service.GamePriceService;
+import guiqsassi.gamescraper.Service.GameService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -23,10 +26,16 @@ public class GameController {
     @Autowired
     private SteamFeignClient  steamFeignClient;
 
+    @Autowired
+    private GameService gameService;
+
+    @Autowired
+    private GamePriceService gpService;
+
     @GetMapping("/{title}")
     private ResponseEntity<?> getGame(@PathVariable String title) {
-        List<GamePrice> gp = nuuvemScraper.getGame(title);
-
+        GamePrice gp = gpService.findBestPrice(title);
+        gp.getGame().getImages().clear();
         return ResponseEntity.ok(gp);
     }
 
