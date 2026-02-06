@@ -1,6 +1,5 @@
 package guiqsassi.gamescraper.Repository;
 
-import guiqsassi.gamescraper.Controller.GamePriceController;
 import guiqsassi.gamescraper.Entity.Game;
 import guiqsassi.gamescraper.Entity.GamePrice;
 import org.springframework.data.jpa.repository.JpaRepository;

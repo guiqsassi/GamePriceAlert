@@ -1,11 +1,8 @@
 package guiqsassi.gamescraper.Controller;
 
 import guiqsassi.gamescraper.Entity.GamePrice;
-import guiqsassi.gamescraper.FeignClient.SteamFeignClient;
 import guiqsassi.gamescraper.Mapper.GamePriceMapper;
-import guiqsassi.gamescraper.Scraper.impl.NuuvemScraper;
 import guiqsassi.gamescraper.Service.GamePriceService;
-import guiqsassi.gamescraper.Service.GameService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;

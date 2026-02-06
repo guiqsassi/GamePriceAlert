@@ -6,15 +6,11 @@ import guiqsassi.gamescraper.Dto.SteamData;
 import guiqsassi.gamescraper.Dto.SteamSearchDto;
 import guiqsassi.gamescraper.Entity.Game;
 import guiqsassi.gamescraper.Entity.GameImage;
-import guiqsassi.gamescraper.Entity.GamePrice;
 import guiqsassi.gamescraper.FeignClient.SteamFeignClient;
 import guiqsassi.gamescraper.Repository.GameRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;

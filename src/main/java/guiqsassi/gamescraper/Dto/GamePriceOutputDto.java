@@ -1,8 +1,6 @@
 package guiqsassi.gamescraper.Dto;
 
 import guiqsassi.gamescraper.Entity.Enum.GameStore;
-import guiqsassi.gamescraper.Entity.Game;
-import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;

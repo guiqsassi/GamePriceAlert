@@ -5,7 +5,6 @@ import guiqsassi.gamescraper.Entity.Game;
 import guiqsassi.gamescraper.Entity.GamePrice;
 import guiqsassi.gamescraper.Scraper.core.AbstractScraper;
 import guiqsassi.gamescraper.Service.GameService;
-import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.openqa.selenium.By;
 import org.openqa.selenium.StaleElementReferenceException;
@@ -14,7 +13,6 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.springframework.stereotype.Service;
-
 import java.math.BigDecimal;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
