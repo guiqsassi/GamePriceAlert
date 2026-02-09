@@ -16,5 +16,6 @@ public class GamePriceOutputDto {
     private GameOutputDto game;
     private LocalDateTime date;
     private BigDecimal price;
+    private String url;
 
 }

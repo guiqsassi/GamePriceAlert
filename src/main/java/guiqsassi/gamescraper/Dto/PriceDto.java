@@ -13,10 +13,13 @@ public class PriceDto {
     private String finalPrice;
 
 
-
     public BigDecimal priceToBigDecimal(){
         Double price = Double.parseDouble(finalPrice)/100;
+        if(price > 0){
+        return BigDecimal.valueOf(price) ;
 
-        return BigDecimal.valueOf(price);
+        }else{
+            return BigDecimal.ZERO;
+        }
     }
 }

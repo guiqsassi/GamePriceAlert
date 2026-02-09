@@ -20,6 +20,7 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -49,7 +50,7 @@ public class NuuvemScraper extends AbstractScraper {
 
                 if (titleE != null && !titleE.isBlank()) {
 
-                    WebElement priceDiv = driver.findElement(By.cssSelector(".product-price"));
+                    WebElement priceDiv = e.findElement(By.cssSelector(".product-price"));
 
                     String dataPrice = priceDiv.getAttribute("data-price");
                     dataPrice = dataPrice.replace("&quot;", "\"");
@@ -61,20 +62,24 @@ public class NuuvemScraper extends AbstractScraper {
                     }
                     BigDecimal price = new BigDecimal(m.group(1))
                                 .divide(new BigDecimal("100"));
+                    Optional<Game> gameOpt = gameService.findOrSaveFromSteam(titleE);
 
-
-
-                    Game  game = gameService.findOrSaveFromSteam(titleE );
+                    if (gameOpt.isEmpty()) {
+                        continue;
+                    }
+                    Game game = gameOpt.get();
 
                     GamePrice g = new GamePrice();
                     g.setGameStore(GameStore.NUUVEM);
                     g.setDate(LocalDateTime.now());
                     g.setPrice(price);
                     g.setGame(game);
-
+                    g.setUrl(href);
                     games.add(g);
                 }
             } catch (StaleElementReferenceException ignored) {
+
+
             }
 
             }

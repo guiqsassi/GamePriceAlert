@@ -4,9 +4,12 @@ import guiqsassi.gamescraper.Dto.ItemDto;
 
 import guiqsassi.gamescraper.Dto.SteamData;
 import guiqsassi.gamescraper.Dto.SteamSearchDto;
+import guiqsassi.gamescraper.Entity.Enum.GameStore;
 import guiqsassi.gamescraper.Entity.Game;
 import guiqsassi.gamescraper.Entity.GameImage;
+import guiqsassi.gamescraper.Entity.GamePrice;
 import guiqsassi.gamescraper.FeignClient.SteamFeignClient;
+import guiqsassi.gamescraper.Repository.GamePriceRepository;
 import guiqsassi.gamescraper.Repository.GameRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +19,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Optional;
 
 @Service
 public class GameService {
@@ -26,6 +30,12 @@ public class GameService {
     @Autowired
     private SteamFeignClient steamClient;
 
+
+    @Autowired
+    private GamePriceRepository gamePriceRepository;
+
+
+
     public Game findByTitle(String title) {
         return gameRepository.findByTitle(title).orElseThrow(() -> new EntityNotFoundException("Game not found"));
     }
@@ -34,16 +44,16 @@ public class GameService {
         return gameRepository.save(game);
     }
 
-    public Game findOrSaveFromSteam(String title){
+    public Optional<Game> findOrSaveFromSteam(String title){
         try{
-            return  findByTitle(title);
+            return Optional.of(findByTitle(title));
         }
         catch (Exception e){
             return saveFromSteam(title);
         }
     }
 
-    public Game saveFromSteam(String title){
+    public Optional<Game> saveFromSteam(String title){
         SteamSearchDto data =steamClient.searchItems(title, "portuguese", "br");
         List<ItemDto> items= data.getItems();
         try {
@@ -69,7 +79,9 @@ public class GameService {
             g.setReleaseDate(LocalDate.parse(raw, formatter).atStartOfDay());
             g.setDescription(gameData.getShort_description());
 
-            gameData.getScreenshots().stream().forEach(screenshot -> {
+
+
+            gameData.getScreenshots().forEach(screenshot -> {
                 GameImage gi = new GameImage();
                 gi.setGame(g);
                 gi.setUrl(screenshot.getPath_full());
@@ -78,9 +90,10 @@ public class GameService {
             g.setSteamId(bestMatchId);
             g.setImages(images);
 
-            return this.save(g);
+
+            return Optional.of(this.save(g));
         } catch (Exception e) {
-            return new Game();
+            return Optional.ofNullable(null);
         }
     }
 

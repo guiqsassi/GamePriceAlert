@@ -30,6 +30,12 @@ public class GamePriceController {
 
         return ResponseEntity.ok(gamePriceMapper.toDto(gp));
     }
+    @GetMapping("/test/{title}")
+    private ResponseEntity<?> getGameTest(@PathVariable String title) {
+        List<GamePrice> gp = gpService.searchGame(title);
+
+        return ResponseEntity.ok(gp.stream().map(gamePriceMapper::toDto).toList());
+    }
 
     @GetMapping("/stores/{title}")
     private ResponseEntity<?> getAllPrices(@PathVariable String title){

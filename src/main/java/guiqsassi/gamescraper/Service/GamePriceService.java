@@ -1,5 +1,6 @@
 package guiqsassi.gamescraper.Service;
 
+import guiqsassi.gamescraper.Dto.SteamAppDetails;
 import guiqsassi.gamescraper.Dto.SteamData;
 import guiqsassi.gamescraper.Entity.Enum.GameStore;
 import guiqsassi.gamescraper.Entity.Game;
@@ -9,8 +10,9 @@ import guiqsassi.gamescraper.Repository.GamePriceRepository;
 import guiqsassi.gamescraper.Scraper.impl.NuuvemScraper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import java.util.Comparator;
-import java.util.List;
+
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class GamePriceService {
@@ -28,12 +30,13 @@ public class GamePriceService {
     private SteamFeignClient steamClient;
 
     public GamePrice findBestPrice(String title){
-        Game g = gameService.findOrSaveFromSteam(title);
+        Game g = gameService.findOrSaveFromSteam(title).orElseThrow();
 
         List<GamePrice> gp = new java.util.ArrayList<>(nuuvemScraper.getGame(g.getTitle()).stream().filter(gamePrice ->
                 gamePrice.getGame().getTitle() != null && gamePrice.getGame().getTitle().contains(title)).toList());
 
         SteamData data = steamClient.getAppDetails(g.getSteamId(), "portuguese", "br").get(g.getSteamId()).getData();
+
         GamePrice gpSteam = new GamePrice();
         gpSteam.setGameStore(GameStore.STEAM);
         gpSteam.setPrice(data.getPrice_overview().priceToBigDecimal());
@@ -56,5 +59,41 @@ public class GamePriceService {
 
     }
 
+
+    public List<GamePrice> searchGame(String title){
+
+
+        List<GamePrice> gps = nuuvemScraper.getGame(title);
+        List<GamePrice> steamGames = new ArrayList<>();
+        gps.forEach(gamePrice -> {
+            Game g = gamePrice.getGame();
+
+            SteamData details = steamClient.getAppDetails(g.getSteamId(), "portuguese", "br").get(g.getSteamId()).getData();
+            GamePrice gPrice = new GamePrice();
+            gPrice.setGame(g);
+            gPrice.setGameStore(GameStore.STEAM);
+            gPrice.setPrice(details.getPrice_overview().priceToBigDecimal());
+            gPrice.setUrl("https://store.steampowered.com/app/" + g.getSteamId());
+            steamGames.add(gPrice);
+
+        });
+
+        gps.addAll(steamGames);
+
+        Map<Game, Optional<GamePrice>> menoresPorJogo =
+                gps.stream()
+                        .collect(Collectors.groupingBy(
+                                GamePrice::getGame,
+                                Collectors.minBy(Comparator.comparing(GamePrice::getPrice))
+                        ));
+
+        gamePriceRepository.saveAll(gps);
+        return menoresPorJogo.values()
+                .stream()
+                .flatMap(Optional::stream)
+                .toList();
+
+
+    }
 
 }

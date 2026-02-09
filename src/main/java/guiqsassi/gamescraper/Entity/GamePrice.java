@@ -24,6 +24,7 @@ public class GamePrice {
     private Game game;
     private LocalDateTime date = LocalDateTime.now();
     private BigDecimal price;
+    private String url;
 
 
 
