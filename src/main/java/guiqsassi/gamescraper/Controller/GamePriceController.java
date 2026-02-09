@@ -2,8 +2,6 @@ package guiqsassi.gamescraper.Controller;
 
 import guiqsassi.gamescraper.Entity.GamePrice;
 import guiqsassi.gamescraper.Mapper.GamePriceMapper;
-import guiqsassi.gamescraper.Scraper.impl.GreenManGamingScaper;
-import guiqsassi.gamescraper.Scraper.impl.InstantGamingScraper;
 import guiqsassi.gamescraper.Service.GamePriceService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -25,8 +23,7 @@ public class GamePriceController {
     @Autowired
     private GamePriceMapper gamePriceMapper;
 
-    @Autowired
-    private GreenManGamingScaper instantGamingScraper;
+
 
     @GetMapping("/{title}")
     private ResponseEntity<?> getGame(@PathVariable String title) {
