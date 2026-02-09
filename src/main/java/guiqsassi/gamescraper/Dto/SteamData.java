@@ -15,5 +15,6 @@ public class SteamData {
     private List<Screenshot> screenshots;
     private ReleaseDate release_date;
     private PriceDto price_overview;
+    private String type;
 
 }

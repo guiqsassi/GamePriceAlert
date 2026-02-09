@@ -14,6 +14,8 @@ import guiqsassi.gamescraper.Repository.GameRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -61,11 +63,14 @@ public class GameService {
                 return itemDto.getName().toLowerCase().contains(title.toLowerCase());
             }).toList().getFirst().getId();
 
-
             SteamData gameData = steamClient.getAppDetails(bestMatchId, "portuguese", "br").get(bestMatchId).getData();
+            if(!gameData.getType().equals("game")){
+                return Optional.ofNullable(null);
+
+            }
+
             Locale ptBR = new Locale("pt", "BR");
 
-            // remove barras e vírgulas estranhas
             String raw = gameData.getRelease_date().getDate().replace("/", " ")
                     .replace(",", "")
                     .trim();
@@ -89,9 +94,19 @@ public class GameService {
             });
             g.setSteamId(bestMatchId);
             g.setImages(images);
+            GamePrice gp = new GamePrice();
 
-
-            return Optional.of(this.save(g));
+            gp.setGame(g);
+            gp.setUrl("https://store.steampowered.com/app/" + g.getSteamId());
+            gp.setGameStore(GameStore.STEAM);
+            if(gameData.getPrice_overview() != null){
+                gp.setPrice(gameData.getPrice_overview().priceToBigDecimal());
+            }else{
+                gp.setPrice(BigDecimal.ZERO);
+            }
+            this.save(g);
+            gamePriceRepository.save(gp);
+            return Optional.of(g);
         } catch (Exception e) {
             return Optional.ofNullable(null);
         }

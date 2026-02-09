@@ -24,10 +24,15 @@ public class GamePriceService {
     private NuuvemScraper nuuvemScraper;
 
     @Autowired
+    private SteamService steamService;
+
+    @Autowired
     private GamePriceRepository gamePriceRepository;
 
     @Autowired
     private SteamFeignClient steamClient;
+
+
 
     public GamePrice findBestPrice(String title){
         Game g = gameService.findOrSaveFromSteam(title).orElseThrow();
@@ -64,21 +69,9 @@ public class GamePriceService {
 
 
         List<GamePrice> gps = nuuvemScraper.getGame(title);
-        List<GamePrice> steamGames = new ArrayList<>();
-        gps.forEach(gamePrice -> {
-            Game g = gamePrice.getGame();
 
-            SteamData details = steamClient.getAppDetails(g.getSteamId(), "portuguese", "br").get(g.getSteamId()).getData();
-            GamePrice gPrice = new GamePrice();
-            gPrice.setGame(g);
-            gPrice.setGameStore(GameStore.STEAM);
-            gPrice.setPrice(details.getPrice_overview().priceToBigDecimal());
-            gPrice.setUrl("https://store.steampowered.com/app/" + g.getSteamId());
-            steamGames.add(gPrice);
 
-        });
-
-        gps.addAll(steamGames);
+        gps.addAll(steamService.searchGameOnSteam(title));
 
         Map<Game, Optional<GamePrice>> menoresPorJogo =
                 gps.stream()

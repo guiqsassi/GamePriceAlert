@@ -15,7 +15,7 @@ public class PriceDto {
 
     public BigDecimal priceToBigDecimal(){
         Double price = Double.parseDouble(finalPrice)/100;
-        if(price > 0){
+        if(price != null && price > 0){
         return BigDecimal.valueOf(price) ;
 
         }else{
