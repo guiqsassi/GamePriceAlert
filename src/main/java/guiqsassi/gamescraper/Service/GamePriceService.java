@@ -7,6 +7,7 @@ import guiqsassi.gamescraper.Entity.Game;
 import guiqsassi.gamescraper.Entity.GamePrice;
 import guiqsassi.gamescraper.FeignClient.SteamFeignClient;
 import guiqsassi.gamescraper.Repository.GamePriceRepository;
+import guiqsassi.gamescraper.Scraper.impl.InstantGamingScraper;
 import guiqsassi.gamescraper.Scraper.impl.NuuvemScraper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -31,6 +32,8 @@ public class GamePriceService {
 
     @Autowired
     private SteamFeignClient steamClient;
+    @Autowired
+    private InstantGamingScraper instantGamingScraper;
 
 
 
@@ -72,7 +75,7 @@ public class GamePriceService {
 
 
         gps.addAll(steamService.searchGameOnSteam(title));
-
+        gps.addAll(instantGamingScraper.getGame(title));
         Map<Game, Optional<GamePrice>> menoresPorJogo =
                 gps.stream()
                         .collect(Collectors.groupingBy(

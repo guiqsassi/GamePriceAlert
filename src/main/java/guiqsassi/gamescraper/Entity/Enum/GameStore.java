@@ -1,5 +1,5 @@
 package guiqsassi.gamescraper.Entity.Enum;
 
 public enum GameStore {
-    NUUVEM, STEAM
+    NUUVEM, STEAM, INSTANTGAMING
 }

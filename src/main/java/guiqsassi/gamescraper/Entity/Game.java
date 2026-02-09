@@ -25,6 +25,7 @@ public class Game {
     @OneToMany(cascade = CascadeType.ALL, fetch= FetchType.EAGER)
     private List<GameImage> images;
     private LocalDateTime created = LocalDateTime.now();
+    private String normalizedTitle;
 
     private String steamId;
 

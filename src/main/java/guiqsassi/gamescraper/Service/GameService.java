@@ -39,7 +39,13 @@ public class GameService {
 
 
     public Game findByTitle(String title) {
-        return gameRepository.findByTitle(title).orElseThrow(() -> new EntityNotFoundException("Game not found"));
+        return gameRepository.findGameByNormalizedTitle(title.toLowerCase()
+                .replaceAll("\\biii\\b", "3")
+                .replaceAll("\\bii\\b", "2")
+                .replaceAll("\\biv\\b", "4")
+                .replaceAll("\\bv\\b", "5")
+                .replaceAll("[^\\p{L}\\p{N} ]", "")
+                .trim()).orElseThrow(() -> new EntityNotFoundException("Game not found"));
     }
 
     public Game save(Game game) {
@@ -56,12 +62,16 @@ public class GameService {
     }
 
     public Optional<Game> saveFromSteam(String title){
-        SteamSearchDto data =steamClient.searchItems(title, "portuguese", "br");
+        SteamSearchDto data =steamClient.searchItems(title.toLowerCase()
+                .replaceAll("\\biii\\b", "3")
+                .replaceAll("\\bii\\b", "2")
+                .replaceAll("\\biv\\b", "4")
+                .replaceAll("\\bv\\b", "5")
+                .replaceAll("[^\\p{L}\\p{N} ]", "")
+                .trim(), "portuguese", "br");
         List<ItemDto> items= data.getItems();
         try {
-            String bestMatchId = items.stream().filter(itemDto -> {
-                return itemDto.getName().toLowerCase().contains(title.toLowerCase());
-            }).toList().getFirst().getId();
+            String bestMatchId = items.getFirst().getId();
 
             SteamData gameData = steamClient.getAppDetails(bestMatchId, "portuguese", "br").get(bestMatchId).getData();
             if(!gameData.getType().equals("game")){
@@ -80,7 +90,7 @@ public class GameService {
 
             List<GameImage> images = new ArrayList<>();
             Game g = new Game();
-            g.setTitle(gameData.getName());
+            g.setTitle(gameData.getName().replaceAll("[^\\p{L}\\p{N} ]", ""));
             g.setReleaseDate(LocalDate.parse(raw, formatter).atStartOfDay());
             g.setDescription(gameData.getShort_description());
 
@@ -97,6 +107,13 @@ public class GameService {
             GamePrice gp = new GamePrice();
 
             gp.setGame(g);
+            g.setNormalizedTitle(title.toLowerCase()
+                    .replaceAll("\\biii\\b", "3")
+                    .replaceAll("\\bii\\b", "2")
+                    .replaceAll("\\biv\\b", "4")
+                    .replaceAll("\\bv\\b", "5")
+                    .replaceAll("[^\\p{L}\\p{N} ]", "")
+                    .trim());
             gp.setUrl("https://store.steampowered.com/app/" + g.getSteamId());
             gp.setGameStore(GameStore.STEAM);
             if(gameData.getPrice_overview() != null){
