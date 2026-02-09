@@ -30,7 +30,7 @@ public class InstantGamingScraper extends AbstractScraper {
 
     @Override
     public List<GamePrice> getGame(String title) {
-        WebDriver d = getDriver("https://www.instant-gaming.com/en/search/?query="+URLEncoder.encode(title, StandardCharsets.UTF_8) +"&platform%5B%5D=1&type%5B%5D=Steam&product_types%5B%5D=game");
+        WebDriver d = getDriver("https://www.instant-gaming.com/en/search/?query="+URLEncoder.encode(title, StandardCharsets.UTF_8) +"&platform%5B%5D=1&type%5B%5D=Steam&product_types%5B%5D=preorder&product_types%5B%5D=game");
 
         WebDriverWait wait = new WebDriverWait(d, Duration.ofSeconds(10));
         wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(By.tagName("a")));
@@ -54,7 +54,7 @@ public class InstantGamingScraper extends AbstractScraper {
             }
             gamePrice.setGameStore(GameStore.INSTANTGAMING);
             gamePrice.setGame(game.get());
-            gamePrice.setUrl("https://www.instant-gaming.com" + link.getAttribute("href"));
+            gamePrice.setUrl(link.getAttribute("href"));
             try{
             gamePrice.setPrice(new BigDecimal(price));
 

@@ -72,10 +72,10 @@ public class GamePriceService {
 
 
         List<GamePrice> gps = nuuvemScraper.getGame(title);
-
-
         gps.addAll(steamService.searchGameOnSteam(title));
         gps.addAll(instantGamingScraper.getGame(title));
+
+
         Map<Game, Optional<GamePrice>> menoresPorJogo =
                 gps.stream()
                         .collect(Collectors.groupingBy(
