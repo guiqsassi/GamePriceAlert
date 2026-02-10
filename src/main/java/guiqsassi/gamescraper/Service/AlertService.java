@@ -28,7 +28,7 @@ public class AlertService {
         alertRepository.deleteById(id);
     }
 
-    @Scheduled(fixedRate = 5000)
+    @Scheduled(cron = "0 0 0 * * *")
     private void alert(){
         List<Alert> alerts = alertRepository.findAll();
 
