@@ -34,6 +34,15 @@ public class GreenManGamingScraper extends AbstractScraper {
         wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(By.className("ais-Hits-item")));
         List<GamePrice> games = new ArrayList<>();
         Integer lenght = 0;
+
+        List<WebElement> noResults = d.findElements(
+                By.xpath("//p[contains(text(), \"WE COULDN'T FIND ANY GAMES\")]")
+        );
+        if (!noResults.isEmpty() && noResults.get(0).isDisplayed()) {
+            System.out.println("Sem resultados — abortando.");
+            return List.of();
+        }
+
         for (WebElement e : d.findElements(By.className("ais-Hits-item"))) {
             String display = e.getCssValue("display");
 

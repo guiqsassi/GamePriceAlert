@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface GamePriceRepository extends JpaRepository<GamePrice, String > {
 
@@ -19,7 +20,7 @@ public interface GamePriceRepository extends JpaRepository<GamePrice, String > {
         WHERE gp2.gameStore = gp.gameStore
           AND gp2.game = :game
     )
-""")
+    """)
     List<GamePrice> findLatestPricePerStore(Game game );
-
+    Optional<GamePrice> findTopByGameOrderByPriceAsc(Game game);
 }

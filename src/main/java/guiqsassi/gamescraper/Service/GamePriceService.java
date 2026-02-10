@@ -70,6 +70,11 @@ public class GamePriceService {
 
     }
 
+    public GamePrice findBestPriceEverByGame(String title){
+        Game game = gameService.findByTitle(title);
+
+        return gamePriceRepository.findTopByGameOrderByPriceAsc(game).orElseThrow();
+    }
 
     public List<GamePrice> searchGame(String title){
 
