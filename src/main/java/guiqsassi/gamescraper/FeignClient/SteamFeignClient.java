@@ -2,6 +2,7 @@ package guiqsassi.gamescraper.FeignClient;
 
 import guiqsassi.gamescraper.Dto.SteamAppDetails;
 import guiqsassi.gamescraper.Dto.SteamSearchDto;
+import guiqsassi.gamescraper.Dto.SteamSubDetails;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -23,5 +24,16 @@ public interface SteamFeignClient {
             @RequestParam("appids") String id,
             @RequestParam("l") String language,
             @RequestParam("cc") String country);
+
+
+
+    @GetMapping("/packagedetails")
+    Map<String, SteamSubDetails> getSubDetails(
+            @RequestParam("packageids") String id,
+            @RequestParam("l") String language,
+            @RequestParam("cc") String country);
+
+
+
 
 }

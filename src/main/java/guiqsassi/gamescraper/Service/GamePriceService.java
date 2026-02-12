@@ -11,6 +11,7 @@ import guiqsassi.gamescraper.Scraper.impl.GreenManGamingScraper;
 import guiqsassi.gamescraper.Scraper.impl.InstantGamingScraper;
 import guiqsassi.gamescraper.Scraper.impl.NuuvemScraper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -76,6 +77,7 @@ public class GamePriceService {
         return gamePriceRepository.findTopByGameOrderByPriceAsc(game).orElseThrow();
     }
 
+    @Cacheable("games")
     public List<GamePrice> searchGame(String title){
 
 

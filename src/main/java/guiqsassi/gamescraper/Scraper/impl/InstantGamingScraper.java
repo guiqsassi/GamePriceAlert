@@ -43,6 +43,8 @@ public class InstantGamingScraper extends AbstractScraper {
             }
 
             lenght++;
+            try{
+
             WebElement link = e.findElement(By.tagName("a"));
             WebElement priceE = e.findElement(By.className("price"));
             String price = priceE.getText().replace("R$ ", "").replace(",", ".");
@@ -55,14 +57,13 @@ public class InstantGamingScraper extends AbstractScraper {
             gamePrice.setGameStore(GameStore.INSTANTGAMING);
             gamePrice.setGame(game.get());
             gamePrice.setUrl(link.getAttribute("href"));
-            try{
             gamePrice.setPrice(new BigDecimal(price));
+            games.add(gamePrice);
 
             } catch (Exception ex) {
                 continue;
             }
 
-            games.add(gamePrice);
 
         }
 

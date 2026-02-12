@@ -6,12 +6,13 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
 @AllArgsConstructor @NoArgsConstructor @Data
-public class GamePrice {
+public class GamePrice implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)

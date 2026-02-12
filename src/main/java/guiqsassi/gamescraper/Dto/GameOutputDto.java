@@ -12,5 +12,6 @@ public class GameOutputDto {
     private List<GameImageOutputDto> images;
     private LocalDateTime created;
     private String steamId;
+    private String coverUrl;
 
 }
